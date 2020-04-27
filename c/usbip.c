@@ -500,8 +500,10 @@ usbip_run (const USB_DEVICE_DESCRIPTOR *dev_dsc)                                
              if(cmd.command > 2)
              {
                 printf("Unknown USBIP cmd!\n");  
+#ifdef LINUX
                 close (sockfd);
-#ifndef LINUX
+#else
+                closesocket(sockfd);
                 WSACleanup ();
 #endif
                 return;  
@@ -509,7 +511,11 @@ usbip_run (const USB_DEVICE_DESCRIPTOR *dev_dsc)                                
  
           } 
        }
-       close (sockfd);
+#ifdef LINUX
+       close(sockfd);
+#else
+       closesocket(sockfd);
+#endif
     };
 #ifndef LINUX
   WSACleanup ();

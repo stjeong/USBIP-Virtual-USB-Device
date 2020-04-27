@@ -26,7 +26,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+
+#ifdef LINUX
+#include<unistd.h>
+#endif
+
 #include "usbip.h"
 
 /* Device Descriptor */
@@ -91,44 +95,49 @@ const CONFIG_HID  configuration_hid={{
 
 const char *configuration = (const char *)&configuration_hid; 
 const USB_INTERFACE_DESCRIPTOR *interfaces[]={ &configuration_hid.dev_int };
+#ifdef LINUX
 const unsigned char *strings[]={};
-const USB_DEVICE_QUALIFIER_DESCRIPTOR  dev_qua={};
+const USB_DEVICE_QUALIFIER_DESCRIPTOR  dev_qua = {};
+#else
+const unsigned char* strings[] = { 0, };
+const USB_DEVICE_QUALIFIER_DESCRIPTOR  dev_qua = { 0, };
+#endif
 
 
 //Class specific descriptor - HID keyboard
 const byte keyboard_report[0x3F]={
-               0x05, 0x01, 
-	       0x09, 0x06,		//Usage Page (Generic Desktop),
-	       0xA1, 0x01,		//Usage (Keyboard),
-	       0x05, 0x07, 		//Collection (Application),
-	       0x19, 0xE0, 		//Usage Page (Key Codes);
-	       0x29, 0xE7, 		//Usage Minimum (224),
-	       0x15, 0x00, 		//Usage Maximum (231),
-	       0x25, 0x01, 		//Logical Minimum (0),
-	       0x75, 0x01, 		//Logical Maximum (1),
-	       0x95, 0x08, 		//Report Size (1),
-	       0x81, 0x02, 		//Report Count (8),
-	       0x95, 0x01, 		//Input (Data, Variable, Absolute),
-	       0x75, 0x08, 		//Report Count (1),
-	       0x81, 0x01, 		//Report Size (8),
-	       0x95, 0x05, 		//Input (Constant),
-	       0x75, 0x01, 		//Report Count (5),
-	       0x05, 0x08, 		//Report Size (1),
-	       0x19, 0x01, 		//Usage Page (Page# for LEDs),
-	       0x29, 0x05, 		//Usage Minimum (1),
-	       0x91, 0x02, 		//Usage Maximum (5),
-	       0x95, 0x01, 		//Output (Data, Variable, Absolute),
-	       0x75, 0x03, 		//Report Count (1),
-	       0x91, 0x01, 		//Report Size (3),
-	       0x95, 0x06, 		//Output (Constant),
-	       0x75, 0x08, 		//Report Count (6),
-	       0x15, 0x00, 		//Report Size (8),
-	       0x25, 0x65, 		//Logical Minimum (0),
-	       0x05, 0x07, 		//Logical Maximum(101),
-	       0x19, 0x00, 		//Usage Page (Key Codes),
-	       0x29, 0x65, 		//Usage Minimum (0),
-	       0x81, 0x00, 		//Usage Maximum (101), #Input (Data, Array),
-	       0xC0};  			//End Collection 
+           0x05, 0x01, //Usage Page (Generic Desktop),
+           0x09, 0x06, //Usage (Keyboard),
+           0xA1, 0x01, //Collection (Application),
+           0x05, 0x07, //Usage Page (Key Codes);
+           0x19, 0xE0, //Usage Minimum (224),
+           0x29, 0xE7, //Usage Maximum (231),
+           0x15, 0x00, //Logical Minimum (0),
+           0x25, 0x01, //Logical Maximum (1),
+           0x75, 0x01, //Report Size (1),
+           0x95, 0x08, //Report Count (8),
+           0x81, 0x02, //Input (Data, Variable, Absolute),
+           0x95, 0x01, //Report Count (1),
+           0x75, 0x08, //Report Size (8),
+           0x81, 0x01, //Input (Constant),
+           0x95, 0x05, //Report Count (5),
+           0x75, 0x01, //Report Size (1),
+           0x05, 0x08, //Usage Page (Page# for LEDs),
+           0x19, 0x01, //Usage Minimum (1),
+           0x29, 0x05, //Usage Maximum (5),
+           0x91, 0x02, //Output (Data, Variable, Absolute),
+           0x95, 0x01, //Report Count (1),
+           0x75, 0x03, //Report Size (3),
+           0x91, 0x01, //Output (Constant),
+           0x95, 0x06, //Report Count (6),
+           0x75, 0x08, //Report Size (8),
+           0x15, 0x00, //Logical Minimum (0),
+           0x25, 0x65, //Logical Maximum(101),
+           0x05, 0x07, //Usage Page (Key Codes),
+           0x19, 0x00, //Usage Minimum (0),
+           0x29, 0x65, //Usage Maximum (101),
+	       0x81, 0x00, //Input (Data, Array),
+	       0xC0};  	   //End Collection 
 
 
 void handle_data(int sockfd, USBIP_RET_SUBMIT *usb_req, int bl)

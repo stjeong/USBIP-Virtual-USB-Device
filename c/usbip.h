@@ -39,10 +39,20 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include<unistd.h>
 //defines
 #define        TCP_SERV_PORT        3240
 typedef struct sockaddr sockaddr;
+
+
+#ifdef LINUX
+#include<unistd.h>
+#else
+#pragma warning(disable : 4996)
+#pragma comment(lib, "ws2_32.lib")
+#define __attribute__(x) 
+#pragma pack(1)
+#define usleep(x) Sleep((x) / 1000)
+#endif
 
 
 //USB definitions
