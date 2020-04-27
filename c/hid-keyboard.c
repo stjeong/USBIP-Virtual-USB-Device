@@ -143,7 +143,7 @@ void handle_data(int sockfd, USBIP_RET_SUBMIT *usb_req, int bl)
          {
             if((count % 2 ) == 0)
               return_val[2]=(char)((((25l*rand())/RAND_MAX))+4);
-            send_usb_req(sockfd, usb_req, return_val, 4, 0);
+            send_usb_req(sockfd, usb_req, return_val, 8, 0);
          } 
          usleep(250000);
          count=count+1;
