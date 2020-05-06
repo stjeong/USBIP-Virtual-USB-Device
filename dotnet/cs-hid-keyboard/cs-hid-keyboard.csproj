@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\..\windows\ExternalDepends\usbip.exe" Link="usbip.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\UsbipDevice\UsbipDevice.csproj" />
   </ItemGroup>
 

@@ -34,9 +34,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hid-keyboard", "windows\hid
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnet", "dotnet", "{0642822B-05D9-42AC-A02E-D5F0BD2BD988}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsbipDevice", "dotnet\UsbipDevice\UsbipDevice.csproj", "{38AB8F4B-60A8-4B95-BAB6-4A767E324952}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UsbipDevice", "dotnet\UsbipDevice\UsbipDevice.csproj", "{38AB8F4B-60A8-4B95-BAB6-4A767E324952}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cs-hid-keyboard", "dotnet\cs-hid-keyboard\cs-hid-keyboard.csproj", "{1C883DD1-3A00-4655-83A1-B562C8212919}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cs-hid-keyboard", "dotnet\cs-hid-keyboard\cs-hid-keyboard.csproj", "{1C883DD1-3A00-4655-83A1-B562C8212919}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExternalDepends", "ExternalDepends", "{6CD32CE8-A34F-4922-AB4E-73373749CD7F}"
+	ProjectSection(SolutionItems) = preProject
+		windows\ExternalDepends\usbip.exe = windows\ExternalDepends\usbip.exe
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -90,6 +95,7 @@ Global
 		{2995ECC8-829E-4B56-889F-F7DEDD4BC867} = {32653715-D662-401C-A726-96A3C817BAD7}
 		{38AB8F4B-60A8-4B95-BAB6-4A767E324952} = {0642822B-05D9-42AC-A02E-D5F0BD2BD988}
 		{1C883DD1-3A00-4655-83A1-B562C8212919} = {0642822B-05D9-42AC-A02E-D5F0BD2BD988}
+		{6CD32CE8-A34F-4922-AB4E-73373749CD7F} = {32653715-D662-401C-A726-96A3C817BAD7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC456B2A-C338-465A-B103-99BFC13E70D8}

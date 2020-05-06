@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace UsbipDevice
 {
-    public class Usbip
+    public class Usbip : IDisposable
     {
         public const int USBIP_PORT = 3240;
         public const short USBIP_PROTOCOL_VERSION = 273;
@@ -21,6 +21,13 @@ namespace UsbipDevice
 
         Socket _clntSocket = null;
 
+        public bool Connected
+        {
+            get { return _clntSocket != null; }
+        }
+
+        public bool VerboseOutput { get; set; }
+
         public Usbip(USB_DEVICE_DESCRIPTOR desc, CONFIG_HID configuration_hid, byte [] report_descriptor)
         {
             _desc = desc;
@@ -28,14 +35,33 @@ namespace UsbipDevice
             _report_descriptor = report_descriptor;
         }
 
+        public void TraceLog(object txt)
+        {
+            if (VerboseOutput == false)
+            {
+                return;
+            }
+
+            Console.WriteLine(txt);
+        }
+
         public unsafe void Run()
         {
-            using (Socket srvSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+            Thread t = new Thread(Wait);
+            t.IsBackground = true;
+            t.Start();
+        }
+
+        Socket _srvSocket;
+
+        unsafe void Wait()
+        {
+            _srvSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             {
                 IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, USBIP_PORT);
 
-                srvSocket.Bind(endPoint);
-                srvSocket.Listen(10);
+                _srvSocket.Bind(endPoint);
+                _srvSocket.Listen(10);
 
                 bool doLoop = true;
 
@@ -43,7 +69,7 @@ namespace UsbipDevice
                 {
                     bool attached = false;
                     _clntSocket = null;
-                    using (Socket clntSocket = srvSocket.Accept())
+                    using (Socket clntSocket = _srvSocket.Accept())
                     {
                         while (doLoop)
                         {
@@ -52,7 +78,7 @@ namespace UsbipDevice
                                 OP_REQ_DEVLIST req = clntSocket.ReadAs<OP_REQ_DEVLIST>();
 
                                 UsbIpCommandType cmdType = req.GetCommandType();
-                                Console.WriteLine(cmdType);
+                                TraceLog(cmdType);
 
                                 if (cmdType == UsbIpCommandType.REQ_DEVLIST)
                                 {
@@ -63,7 +89,7 @@ namespace UsbipDevice
                                         break;
                                     }
 
-                                    Console.WriteLine("Device attached.");
+                                    TraceLog("Device attached.");
                                     attached = true;
                                 }
                             }
@@ -71,16 +97,16 @@ namespace UsbipDevice
                             {
                                 USBIP_CMD_SUBMIT cmd = clntSocket.ReadAndUnpackAs<USBIP_CMD_SUBMIT>();
 
-                                Console.WriteLine($"usbip cmd {cmd.command}");
-                                Console.WriteLine($"usbip seqnum {cmd.seqnum}");
-                                Console.WriteLine($"usbip devid {cmd.devid}");
-                                Console.WriteLine($"usbip direction {cmd.direction}");
-                                Console.WriteLine($"usbip ep {cmd.ep}");
-                                Console.WriteLine($"usbip flags {cmd.transfer_flags}");
-                                Console.WriteLine($"usbip number of packets {cmd.number_of_packets}");
-                                Console.WriteLine($"usbip interval {cmd.interval}");
-                                Console.WriteLine($"usbip setup {cmd.setup}");
-                                Console.WriteLine($"usbip buffer length {cmd.transfer_buffer_length}");
+                                TraceLog($"usbip cmd {cmd.command}");
+                                TraceLog($"usbip seqnum {cmd.seqnum}");
+                                TraceLog($"usbip devid {cmd.devid}");
+                                TraceLog($"usbip direction {cmd.direction}");
+                                TraceLog($"usbip ep {cmd.ep}");
+                                TraceLog($"usbip flags {cmd.transfer_flags}");
+                                TraceLog($"usbip number of packets {cmd.number_of_packets}");
+                                TraceLog($"usbip interval {cmd.interval}");
+                                TraceLog($"usbip setup {cmd.setup}");
+                                TraceLog($"usbip buffer length {cmd.transfer_buffer_length}");
 
                                 switch (cmd.command)
                                 {
@@ -103,7 +129,7 @@ namespace UsbipDevice
                                         handle_usb_request(clntSocket, usb_req, cmd.transfer_buffer_length);
                                         break;
 
-                                    case 2: // unlink urb
+                                    case 2: // unlink urb - NOT IMPL YET
                                         break;
 
                                     default:
@@ -123,12 +149,12 @@ namespace UsbipDevice
         {
             if (usb_req.ep == 0)
             {
-                Console.WriteLine("#control requests");
+                TraceLog("#control requests");
                 handle_usb_control(clntSocket, usb_req);
             }
             else
             {
-                Console.WriteLine("#data requests");
+                TraceLog("#data requests");
                 handle_data(clntSocket, usb_req, transfer_buffer_length);
             }
         }
@@ -159,7 +185,7 @@ namespace UsbipDevice
 
         void handle_usb_control(Socket clntSocket, USBIP_RET_SUBMIT usb_req)
         {
-            Console.WriteLine($"setup: {usb_req.setup}");
+            TraceLog($"setup: {usb_req.setup}");
 
             int handled = 0;
             StandardDeviceRequest control_req = new StandardDeviceRequest();
@@ -171,11 +197,11 @@ namespace UsbipDevice
             control_req.wIndex0 = (byte)(((ulong)usb_req.setup & 0x00000000FF000000) >> 24);
             control_req.wIndex1 = (byte)(((ulong)usb_req.setup & 0x0000000000FF0000) >> 16);
             control_req.wLength = IPAddress.NetworkToHostOrder((short)(usb_req.setup & 0x000000000000FFFF));
-            Console.WriteLine($"  UC Request Type {control_req.bmRequestType}");
-            Console.WriteLine($"  UC Request {control_req.bRequest}");
-            Console.WriteLine($"  UC Value  {control_req.wValue1}[{control_req.wValue0}]");
-            Console.WriteLine($"  UCIndex  {control_req.wIndex1 }-{control_req.wIndex0}");
-            Console.WriteLine($"  UC Length {control_req.wLength }");
+            TraceLog($"  UC Request Type {control_req.bmRequestType}");
+            TraceLog($"  UC Request {control_req.bRequest}");
+            TraceLog($"  UC Value  {control_req.wValue1}[{control_req.wValue0}]");
+            TraceLog($"  UCIndex  {control_req.wIndex1 }-{control_req.wIndex0}");
+            TraceLog($"  UC Length {control_req.wLength }");
 
             if (control_req.bmRequestType == 0x80) // Host Request
             {
@@ -183,6 +209,7 @@ namespace UsbipDevice
                 {
                     handled = handle_get_descriptor(clntSocket, _desc, _configuration_hid, control_req, usb_req);
                 }
+
                 if (control_req.bRequest == 0x00) // Get STATUS
                 {
                     byte [] data = new byte[2];
@@ -190,26 +217,27 @@ namespace UsbipDevice
                     data[1] = 0x00;
                     send_usb_req(clntSocket, usb_req, data, 2, 0);
                     handled = 1;
-                    Console.WriteLine("GET_STATUS\n");
+                    TraceLog("GET_STATUS\n");
                 }
             }
+
             if (control_req.bmRequestType == 0x00) // 
             {
                 if (control_req.bRequest == 0x09) // Set Configuration
                 {
                     handled = handle_set_configuration(clntSocket, control_req, usb_req);
+                    _clntSocket = clntSocket;
                 }
             }
+
             if (control_req.bmRequestType == 0x01)
             {
                 if (control_req.bRequest == 0x0B) //SET_INTERFACE  
                 {
-                    Console.WriteLine("SET_INTERFACE");
+                    TraceLog("SET_INTERFACE");
                     send_usb_req(clntSocket, usb_req, null, 0, 1);
                     handled = 1;
                 }
-
-                _clntSocket = clntSocket;
             }
 
             if (handled == 0)
@@ -226,7 +254,7 @@ namespace UsbipDevice
                 {
                     if (control_req.wValue1 == 0x22)  // send initial report
                     {
-                        Console.WriteLine("send initial report");
+                        TraceLog("send initial report");
                         send_usb_req(clntSocket, usb_req, _report_descriptor, (uint)_report_descriptor.Length, 0);
                     }
                 }
@@ -236,17 +264,17 @@ namespace UsbipDevice
             {
                 if (control_req.bRequest == 0x0a)  // set idle
                 {
-                    Console.WriteLine("Idle");
+                    TraceLog("Idle");
                     send_usb_req(clntSocket, usb_req, null, 0, 0);
                 }
                 if (control_req.bRequest == 0x09)  // set report
                 {
-                    Console.WriteLine("set report");
+                    TraceLog("set report");
                     
                     byte [] data = new byte[20];
                     if (clntSocket.Receive(data, control_req.wLength, 0) != control_req.wLength)
                     {
-                        Console.WriteLine("receive error : {errno}");
+                        TraceLog("receive error : {errno}");
                         Environment.Exit(-1);
                     };
 
@@ -269,10 +297,10 @@ namespace UsbipDevice
         unsafe int handle_get_descriptor(Socket clntSocket, USB_DEVICE_DESCRIPTOR desc, CONFIG_HID configuration_hid, StandardDeviceRequest control_req, USBIP_RET_SUBMIT usb_req)
         {
             int handled = 0;
-            Console.WriteLine($"handle_get_descriptor {control_req.wValue1} [{control_req.wValue0}]");
+            TraceLog($"handle_get_descriptor {control_req.wValue1} [{control_req.wValue0}]");
             if (control_req.wValue1 == 0x1) // Device
             {
-                Console.WriteLine("Device");
+                TraceLog("Device");
                 handled = 1;
 
                 byte [] buf = StructureToBytes(desc);
@@ -280,7 +308,7 @@ namespace UsbipDevice
             }
             if (control_req.wValue1 == 0x2) // configuration
             {
-                Console.WriteLine("Configuration\n");
+                TraceLog("Configuration\n");
                 handled = 1;
                 byte[] buf = StructureToBytes(configuration_hid);
                 send_usb_req(clntSocket, usb_req, buf, (uint)control_req.wLength, 0);
@@ -299,14 +327,14 @@ namespace UsbipDevice
             }
             if (control_req.wValue1 == 0x6) // qualifier
             {
-                Console.WriteLine("Qualifier");
+                TraceLog("Qualifier");
                 handled = 1;
                 byte[] buf = StructureToBytes(dev_qua);
                 send_usb_req(clntSocket, usb_req, buf, (uint)control_req.wLength, 0);
             }
             if (control_req.wValue1 == 0xA) // config status ???
             {
-                Console.WriteLine("Unknow");
+                TraceLog("Unknow");
                 handled = 1;
                 send_usb_req(clntSocket, usb_req, null, 0, 1);
             }
@@ -316,7 +344,7 @@ namespace UsbipDevice
         int handle_set_configuration(Socket clntSocket, StandardDeviceRequest control_req, USBIP_RET_SUBMIT usb_req)
         {
             int handled = 0;
-            Console.WriteLine($"handle_set_configuration {control_req.wValue1}[{control_req.wValue0}]");
+            TraceLog($"handle_set_configuration {control_req.wValue1}[{control_req.wValue0}]");
             handled = 1;
             send_usb_req(clntSocket, usb_req, null, 0, 0);
             return handled;
@@ -344,7 +372,7 @@ namespace UsbipDevice
 
             if (clntSocket.Send(buf, buf.Length, SocketFlags.None) != sizeof(USBIP_RET_SUBMIT))
             {
-                Console.WriteLine($"send error");
+                TraceLog($"send error");
                 Environment.Exit(-1);
             };
 
@@ -352,7 +380,7 @@ namespace UsbipDevice
             {
                 if (clntSocket.Send(data, (int)size, SocketFlags.None) != size)
                 {
-                    Console.WriteLine($"send error");
+                    TraceLog($"send error");
                     Environment.Exit(-1);
                 };
             }
@@ -389,6 +417,21 @@ namespace UsbipDevice
             Marshal.Copy(buf, 0, new IntPtr(rep.busID), buf.Length);
 
             return clntSocket.SendAs(rep);
+        }
+
+        public void Dispose()
+        {
+            if (_clntSocket != null)
+            {
+                _clntSocket.Close();
+                _clntSocket = null;
+            }
+
+            if (_srvSocket != null)
+            {
+                _srvSocket.Close();
+                _srvSocket = null;
+            }
         }
     }
 }
