@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.0.2</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -12,5 +12,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="nuget\**" />
+    <Compile Remove="nuget_output\**" />
+    <EmbeddedResource Remove="nuget\**" />
+    <EmbeddedResource Remove="nuget_output\**" />
+    <None Remove="nuget\**" />
+    <None Remove="nuget_output\**" />
+  </ItemGroup>
 
 </Project>

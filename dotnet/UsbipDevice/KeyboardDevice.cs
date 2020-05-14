@@ -16,14 +16,20 @@ namespace UsbipDevice
         public const char VK_IME_KEY = (char)0x0f;
         public const char VK_CAPITAL = (char)0x14;
 
+        byte[] _reportDescriptor;
+        bool _hasReportId = false;
+
         public bool Connected
         {
             get { return _device.Connected; }
         }
 
-        public KeyboardDevice(Usbip device)
+        public KeyboardDevice(Usbip device, byte[] reportDescriptor)
         {
             _device = device;
+
+            _reportDescriptor = reportDescriptor;
+            _hasReportId = ReportDescEnumerator.HasReportId(_reportDescriptor);
         }
 
         public void SendText(string txt)
@@ -181,27 +187,60 @@ namespace UsbipDevice
             return ConsoleKeyInfoToCommand(new ConsoleKeyInfo[] { key });
         }
 
+        public byte GetReportId()
+        {
+            if (_hasReportId == false)
+            {
+                return 0;
+            }
+
+            return KeyboardMouseDescriptors.KeyboardReportId;
+        }
+
+        byte [] GetBuffer(byte reportId)
+        {
+            int bufferSize = ReportDescEnumerator.GetReportSize(_reportDescriptor, reportId);
+            if (bufferSize > 8)
+            {
+                bufferSize = 8;
+            }
+
+            byte[] buffer = new byte[bufferSize];
+
+            buffer[0] = reportId;
+
+            return buffer;
+        }
+
         public List<byte[]> ConsoleKeyInfoToCommand(ConsoleKeyInfo[] keys)
         {
             List<byte[]> list = new List<byte[]>();
 
+            byte reportId = GetReportId();
+
             for (int i = 0; i < keys.Length; i++)
             {
                 ConsoleKeyInfo key = keys[i];
-                byte[] buf = new byte[8];
+                byte[] bufferDown = GetBuffer(reportId);
 
                 char ch = key.KeyChar;
+                int baseId = 0;
+
+                if (reportId != 0)
+                {
+                    baseId++;
+                }
 
                 if (ch == 0)
                 {
                     if (_controlKey.ContainsKey((char)key.Key) == true)
                     {
-                        buf[0] = GetModifierKey(key.Modifiers, false);
-                        buf[2] = _controlKey[(char)key.Key]; // key down
+                        bufferDown[baseId + 0] = GetModifierKey(key.Modifiers, false);
+                        bufferDown[baseId + 2] = _controlKey[(char)key.Key]; // key down
                     }
                     else if (_modifierKey.ContainsKey((char)key.Key) == true)
                     {
-                        buf[0] = _modifierKey[(char)key.Key];
+                        bufferDown[baseId + 0] = _modifierKey[(char)key.Key];
                     }
                 }
                 else
@@ -210,12 +249,14 @@ namespace UsbipDevice
                     bool needShift = _upper.Contains(ch);
 
                     byte modifier = GetModifierKey(key.Modifiers, needShift);
-                    buf[0] = modifier;
-                    buf[2] = keyCode;
+                    bufferDown[baseId + 0] = modifier;
+                    bufferDown[baseId + 2] = keyCode;
                 }
 
-                list.Add(buf);          // key down
-                list.Add(new byte[8]);  // key up
+                list.Add(bufferDown);          // key down
+
+                byte[] bufferUp = GetBuffer(reportId);
+                list.Add(bufferUp);  // key up
             }
 
             return list;

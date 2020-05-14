@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HelperExtension;
+using System;
 using System.Diagnostics;
 using System.Threading;
 using UsbipDevice;
 
-namespace cs_hid_keyboard
+namespace cs_hid_mouse
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("cs-hid-keyboard");
+            Console.WriteLine("cs-hid-mouse");
             bool waitLocalHost = true;
 
             if (args.Length >= 1)
@@ -21,10 +21,21 @@ namespace cs_hid_keyboard
                 }
             }
 
-            byte[] reportBuffer = KeyboardDescriptors.Report;
-            using (Usbip device = new Usbip(UsbDescriptors.Device, KeyboardDescriptors.Hid, reportBuffer))
+            int cxScreen = SafeMethods.GetSystemMetrics(SystemMetric.SM_CXVIRTUALSCREEN);
+            int cyScreen = SafeMethods.GetSystemMetrics(SystemMetric.SM_CYVIRTUALSCREEN);
+            Console.WriteLine($"CX: {cxScreen}");
+            Console.WriteLine($"CY: {cyScreen}");
+
+            // byte[] reportBuffer = MouseDescriptors.RelativeReport;
+            // Usbip device = new Usbip(MouseDescriptors.Device, MouseDescriptors.RelativeHid, reportBuffer);
+
+            // byte[] reportBuffer = MouseDescriptors.AbsoluteReport;
+            // Usbip device = new Usbip(MouseDescriptors.Device, MouseDescriptors.AbsoluteHid, reportBuffer);
+
+            byte[] reportBuffer = MouseDescriptors.AbsoluteAndRelativeReport;
+            using (Usbip device = new Usbip(UsbDescriptors.Device, MouseDescriptors.AbsoluteAndRelativeHid, reportBuffer))
             {
-                KeyboardDevice keyboard = new KeyboardDevice(device, reportBuffer);
+                MouseDevice mouse = new MouseDevice(device, reportBuffer, cxScreen, cyScreen);
 
                 device.Run();
 
@@ -35,7 +46,7 @@ namespace cs_hid_keyboard
                     usbipServer.Start();
                 }
 
-                KeyboardTest(keyboard);
+                MouseTest(mouse);
             }
         }
 
@@ -50,39 +61,14 @@ namespace cs_hid_keyboard
             Process.Start("usbip", "attach -r 127.0.0.1 -b 1-1");
         }
 
-        private static void KeyboardTest(KeyboardDevice keyboard)
+        private static void MouseTest(MouseDevice mouse)
         {
-            //{
-            //    string txt = "abc+*()<ime>xptmxm<ime>";
-            //    _usbController.SendText(txt + Environment.NewLine);
-            //}
-
-            //{
-            //    string txt = "<shift_down>abc<shift_up>";
-            //    _usbController.SendText(txt + Environment.NewLine);
-            //}
-
-            //{
-            //    string txt = "<ctrl_down><esc><ctrl_up>";
-            //    _usbController.SendText(txt);
-            //}
-
-            //{
-            //    string txt = "<capslock>test is good<capslock><return>";
-            //    _usbController.SendText(txt);
-            //}
-
-            //{
-            //    string txt = "<ctrl_down><shift_down><esc><shift_up><ctrl_up>";
-            //    _usbController.SendText(txt);
-            //}
-
             Console.WriteLine("Wait for usbip...");
             while (true)
             {
                 Console.Write(".");
 
-                if (keyboard.Connected == true)
+                if (mouse.Connected == true)
                 {
                     break;
                 }
@@ -92,18 +78,19 @@ namespace cs_hid_keyboard
 
             while (true)
             {
-                Console.Write("Keyboard> ");
+                Console.Write("Mouse> ");
                 string text = Console.ReadLine();
 
                 Thread.Sleep(2000);
 
                 if (text == "quit")
                 {
-                    keyboard.Dispose();
+                    mouse.Dispose();
                     break;
                 }
 
-                keyboard.SendText(text);
+                Thread.Sleep(2000);
+                mouse.SendText(text);
             }
         }
     }

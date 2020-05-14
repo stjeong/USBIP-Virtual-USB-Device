@@ -43,6 +43,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExternalDepends", "External
 		windows\ExternalDepends\usbip.exe = windows\ExternalDepends\usbip.exe
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cs-hid-mouse", "dotnet\cs-hid-mouse\cs-hid-mouse.csproj", "{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cs-hid-keyboardmouse", "dotnet\cs-hid-keyboardmouse\cs-hid-keyboardmouse.csproj", "{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +91,30 @@ Global
 		{1C883DD1-3A00-4655-83A1-B562C8212919}.Release|x64.Build.0 = Release|Any CPU
 		{1C883DD1-3A00-4655-83A1-B562C8212919}.Release|x86.ActiveCfg = Release|Any CPU
 		{1C883DD1-3A00-4655-83A1-B562C8212919}.Release|x86.Build.0 = Release|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Debug|x64.Build.0 = Debug|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Debug|x86.Build.0 = Debug|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Release|x64.ActiveCfg = Release|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Release|x64.Build.0 = Release|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Release|x86.ActiveCfg = Release|Any CPU
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215}.Release|x86.Build.0 = Release|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Debug|x64.Build.0 = Debug|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Debug|x86.Build.0 = Debug|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Release|x64.ActiveCfg = Release|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Release|x64.Build.0 = Release|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Release|x86.ActiveCfg = Release|Any CPU
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,6 +124,8 @@ Global
 		{38AB8F4B-60A8-4B95-BAB6-4A767E324952} = {0642822B-05D9-42AC-A02E-D5F0BD2BD988}
 		{1C883DD1-3A00-4655-83A1-B562C8212919} = {0642822B-05D9-42AC-A02E-D5F0BD2BD988}
 		{6CD32CE8-A34F-4922-AB4E-73373749CD7F} = {32653715-D662-401C-A726-96A3C817BAD7}
+		{ECDBFF3E-84B6-49EB-AC5A-C886B999E215} = {0642822B-05D9-42AC-A02E-D5F0BD2BD988}
+		{BD44C9C0-FFFB-4667-8709-BBFE6C0B5F07} = {0642822B-05D9-42AC-A02E-D5F0BD2BD988}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC456B2A-C338-465A-B103-99BFC13E70D8}
