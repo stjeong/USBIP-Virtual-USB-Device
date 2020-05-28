@@ -348,6 +348,14 @@ namespace UsbipDevice
                 }
             }
 
+            foreach (var item in _controlKey)
+            {
+                if (item.Value == code)
+                {
+                    return item.Key;
+                }
+            }
+
             return (char)0;
         }
 
