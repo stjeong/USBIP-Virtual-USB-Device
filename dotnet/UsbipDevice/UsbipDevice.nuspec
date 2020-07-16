@@ -3,7 +3,7 @@
     <metadata>
         <id>UsbipDevice</id>
         <title>C# wrapper class for USB/IP</title>
-        <version>1.0.5</version>
+        <version>1.0.6</version>
         <authors>SeongTae Jeong</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>C# wrapper class for cezanne/usbip-win in github</description>

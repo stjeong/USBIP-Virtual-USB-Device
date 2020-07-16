@@ -10,7 +10,6 @@ namespace UsbipDevice
 {
     public class Usbip : IDisposable
     {
-        public const int USBIP_PORT = 3240;
         public const short USBIP_PROTOCOL_VERSION = 273;
 
         USB_DEVICE_QUALIFIER_DESCRIPTOR dev_qua = new USB_DEVICE_QUALIFIER_DESCRIPTOR();
@@ -20,6 +19,13 @@ namespace UsbipDevice
         byte[] _report_descriptor;
 
         Socket _clntSocket = null;
+
+        int _port = 3240;
+        public int Port
+        {
+            get { return _port; }
+            set { _port = value; }
+        }
 
         public bool Connected
         {
@@ -58,7 +64,7 @@ namespace UsbipDevice
         {
             _srvSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             {
-                IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, USBIP_PORT);
+                IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, Port);
 
                 _srvSocket.Bind(endPoint);
                 _srvSocket.Listen(10);
